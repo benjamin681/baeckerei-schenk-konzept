@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bäckerei Schenk — Website-Konzept | LaneCore AI</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Outfit:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#F8F3EB;overflow-x:hidden}img{max-width:100%}</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+const { useState, useEffect, useRef } = React;
+
+/* ═══════════════════════════════════════════════════════════════
+   BÄCKEREI SCHENK — V3 · PHOTOGRAPHY-DRIVEN EDITORIAL
+   Real Unsplash images · Full-bleed cinematic hero
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Unsplash free images (no attribution required for web use) */
+const IMG = {
+  hero: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1400&q=80",       // fresh bread loaves
+  bread: "https://images.unsplash.com/photo-1549931319-a545753d62ce?w=1200&q=80",         // sourdough close-up
+  bakery: "https://images.unsplash.com/photo-1555507036-ab1f4038024a?w=1200&q=80",        // bakery display
+  dough: "https://images.unsplash.com/photo-1586444248879-bc604bc77ddd?w=1200&q=80",      // bread scoring
+  brezeln: "https://images.unsplash.com/photo-1598373182133-52452f7691ef?w=1000&q=80",    // pretzels/baked goods
+  wheat: "https://images.unsplash.com/photo-1567306226416-28f0efdc88ce?w=1400&q=80",      // wheat field at golden hour
+};
+
+const C = {
+  bg: "#F8F3EB", bgWarm: "#F2EADE", dark: "#1C1108", darkSoft: "#2A1D0E",
+  text: "#3D2E1A", muted: "#8A7A66", mutedLight: "#B3A593",
+  gold: "#C48B2C", goldBright: "#D9A23E", goldPale: "rgba(196,139,44,0.07)",
+  cream: "#E8DECE", crust: "#8B5E34", warm: "#D4B896", white: "#FFFCF7",
+  badge: "#3A5F1C", badgeBg: "rgba(58,95,28,0.06)",
+};
+
+const ff = { display: "'Cormorant', serif", body: "'Outfit', sans-serif" };
+
+function useReveal(t = 0.1) {
+  const r = useRef(null); const [v, s] = useState(false);
+  useEffect(() => { const el = r.current; if (!el) return; const o = new IntersectionObserver(([e]) => { if (e.isIntersecting) { s(true); o.unobserve(el); } }, { threshold: t }); o.observe(el); return () => o.disconnect(); }, [t]);
+  return [r, v];
+}
+function R({ children, delay = 0, y = 30, style = {} }) {
+  const [r, v] = useReveal();
+  return <div ref={r} style={{ ...style, opacity: v ? 1 : 0, transform: v ? "none" : `translateY(${y}px)`, transition: `opacity 0.9s cubic-bezier(0.16,1,0.3,1) ${delay}s, transform 0.9s cubic-bezier(0.16,1,0.3,1) ${delay}s` }}>{children}</div>;
+}
+
+const I = (d, o = {}) => <svg width={o.s||20} height={o.s||20} viewBox="0 0 24 24" fill={o.f||"none"} stroke={o.c||"currentColor"} strokeWidth={o.w||1.5} strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0}}>{d}</svg>;
+const ic = {
+  pin: I(<><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 01-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0116 0"/><circle cx="12" cy="10" r="3"/></>),
+  phone: I(<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>),
+  mail: I(<><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7"/></>),
+  clock: I(<><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></>),
+  arrow: I(<><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></>),
+  arrowDown: I(<><path d="M12 5v14"/><path d="m5 12 7 7 7-7"/></>),
+  check: I(<path d="M20 6L9 17l-5-5"/>),
+  star: I(<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>, {f:C.gold,c:C.gold,s:16}),
+  wifi: I(<><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><circle cx="12" cy="20" r="1"/></>),
+  award: I(<><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></>),
+};
+
+const grain = { position:"absolute",inset:0,pointerEvents:"none",opacity:0.03,backgroundImage:`url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")` };
+
+const pages = [{id:"home",l:"Start"},{id:"handwerk",l:"Handwerk"},{id:"ueber",l:"Über Uns"},{id:"kontakt",l:"Besuch"}];
+
+/* ─── Reusable: Full-bleed photo section ─── */
+function PhotoSection({ src, alt, height = 500, overlay = "linear-gradient(0deg, #1C1108 0%, #1C110880 40%, #1C110830 100%)", position = "center", children }) {
+  return (
+    <section style={{ position: "relative", height, overflow: "hidden" }}>
+      <img src={src} alt={alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: position, display: "block" }} />
+      <div style={{ position: "absolute", inset: 0, background: overlay }} />
+      {children && <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "flex-end" }}>{children}</div>}
+    </section>
+  );
+}
+
+/* ═══ NAV ═══ */
+function Nav({active,go}) {
+  const [sc,setSc] = useState(false);
+  const isHome = active === "home";
+  useEffect(() => { const f=()=>setSc(window.scrollY>60); window.addEventListener("scroll",f,{passive:true}); return ()=>window.removeEventListener("scroll",f); }, []);
+  const navBg = sc ? (isHome ? `${C.dark}F0` : `${C.bg}F0`) : "transparent";
+  const navText = (isHome && !sc) ? C.warm : (sc && isHome) ? C.warm : C.muted;
+  const logoColor = (isHome && !sc) ? C.white : (sc && isHome) ? C.white : C.dark;
+  return (
+    <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:100,background:navBg,backdropFilter:sc?"blur(24px) saturate(1.2)":"none",borderBottom:sc?`1px solid ${isHome?C.dark+"20":C.cream}`:"1px solid transparent",transition:"all 0.5s cubic-bezier(0.16,1,0.3,1)"}}>
+      <div style={{maxWidth:1200,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between",height:76,padding:"0 40px"}}>
+        <button onClick={()=>go("home")} style={{background:"none",border:"none",cursor:"pointer",padding:0}}>
+          <span style={{fontFamily:ff.display,fontSize:30,fontWeight:600,color:logoColor,letterSpacing:"-0.03em",transition:"color 0.3s"}}>Schenk</span>
+        </button>
+        <div style={{display:"flex",alignItems:"center",gap:0}}>
+          {pages.map(p=>(
+            <button key={p.id} onClick={()=>go(p.id)} style={{background:"none",border:"none",cursor:"pointer",padding:"12px 20px",fontFamily:ff.body,fontSize:11,fontWeight:active===p.id?600:400,color:active===p.id?logoColor:navText,letterSpacing:1,transition:"all 0.2s",minHeight:44,textTransform:"uppercase"}}
+              onMouseEnter={e=>{if(active!==p.id)e.currentTarget.style.color=logoColor}}
+              onMouseLeave={e=>{if(active!==p.id)e.currentTarget.style.color=navText}}
+            >{p.l}</button>
+          ))}
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+/* ═══ HOME ═══ */
+function Home({go}) {
+  return (
+    <div>
+      {/* ── HERO: FULL-BLEED PHOTO ── */}
+      <section style={{position:"relative",height:"100vh",overflow:"hidden"}}>
+        <img src={IMG.hero} alt="Frisch gebackene Brote" style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"center 30%",display:"block"}}/>
+        <div style={{position:"absolute",inset:0,background:"linear-gradient(180deg, #1C110840 0%, #1C110860 40%, #1C1108CC 75%, #1C1108F0 100%)"}}/>
+        <div style={grain}/>
+
+        <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",justifyContent:"flex-end"}}>
+          <div style={{maxWidth:1200,margin:"0 auto",padding:"0 40px 0",width:"100%",boxSizing:"border-box"}}>
+            <R delay={0.1}>
+              <div style={{fontFamily:ff.body,fontSize:11,fontWeight:400,letterSpacing:5,textTransform:"uppercase",color:C.warm,marginBottom:24,display:"flex",alignItems:"center",gap:14}}>
+                <span style={{display:"inline-block",width:40,height:1,background:C.gold}}/>
+                Handwerksbäckerei · Rosenberg
+              </div>
+            </R>
+            <R delay={0.25}>
+              <h1 style={{fontFamily:ff.display,fontSize:"clamp(48px, 6.5vw, 88px)",fontWeight:600,color:C.white,lineHeight:0.95,letterSpacing:"-0.04em",margin:"0 0 0",maxWidth:700}}>
+                Wenn der<br/><em style={{fontWeight:400,color:C.gold}}>Sauerteig</em><br/>spricht.
+              </h1>
+            </R>
+            <R delay={0.45}>
+              <p style={{fontFamily:ff.body,fontSize:16,fontWeight:300,color:`${C.warm}BB`,lineHeight:1.9,maxWidth:400,margin:"32px 0 0"}}>
+                Kein Betriebsgeheimnis — nur Mehl, Wasser, Salz und Zeit. Jeden Morgen ab 05:45 frisch für Sie in Rosenberg.
+              </p>
+            </R>
+            <R delay={0.6}>
+              <div style={{display:"flex",gap:16,margin:"40px 0 0"}}>
+                <button onClick={()=>go("handwerk")} style={{display:"inline-flex",alignItems:"center",gap:10,background:C.gold,color:C.dark,border:"none",padding:"16px 34px",borderRadius:0,fontFamily:ff.body,fontSize:12,fontWeight:600,letterSpacing:1.5,textTransform:"uppercase",cursor:"pointer",transition:"all 0.3s",minHeight:52}}
+                  onMouseEnter={e=>{e.currentTarget.style.background=C.goldBright;e.currentTarget.style.transform="translateY(-2px)"}}
+                  onMouseLeave={e=>{e.currentTarget.style.background=C.gold;e.currentTarget.style.transform="none"}}
+                >Unser Handwerk</button>
+                <button onClick={()=>go("kontakt")} style={{background:"none",color:C.warm,border:`1px solid ${C.warm}30`,padding:"16px 28px",borderRadius:0,fontFamily:ff.body,fontSize:12,fontWeight:400,letterSpacing:1,cursor:"pointer",transition:"all 0.3s",minHeight:52,textTransform:"uppercase"}}
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor=C.gold;e.currentTarget.style.color=C.gold}}
+                  onMouseLeave={e=>{e.currentTarget.style.borderColor=`${C.warm}30`;e.currentTarget.style.color=C.warm}}
+                >Besuchen Sie uns</button>
+              </div>
+            </R>
+          </div>
+
+          {/* Stats bar over the photo */}
+          <div style={{marginTop:56,borderTop:`1px solid ${C.warm}15`,background:`${C.dark}60`,backdropFilter:"blur(16px)"}}>
+            <div style={{maxWidth:1200,margin:"0 auto",padding:"0 40px",display:"grid",gridTemplateColumns:"repeat(4, 1fr)"}}>
+              {[
+                {v:"4,7",l:"von 5 Sternen",s:"93 Bewertungen"},
+                {v:"05:45",l:"Uhr morgens",s:"Dienstag – Samstag"},
+                {v:"100%",l:"Natursauerteig",s:"Keine Backmischungen"},
+                {v:"✓",l:"Innungsbäcker",s:"Brotinstitut geprüft"},
+              ].map((s,i)=>(
+                <R key={i} delay={0.7+i*0.06}>
+                  <div style={{padding:"20px 0",textAlign:"center",borderRight:i<3?`1px solid ${C.warm}10`:"none"}}>
+                    <div style={{fontFamily:ff.display,fontSize:28,fontWeight:600,color:C.warm,lineHeight:1}}>{s.v}</div>
+                    <div style={{fontFamily:ff.body,fontSize:9,fontWeight:500,color:`${C.warm}70`,letterSpacing:2,textTransform:"uppercase",marginTop:4}}>{s.l}</div>
+                  </div>
+                </R>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── QUOTE ── */}
+      <section style={{background:C.bg,position:"relative"}}>
+        <div style={grain}/>
+        <div style={{maxWidth:800,margin:"0 auto",padding:"100px 40px",textAlign:"center"}}>
+          <R>
+            <div style={{fontFamily:ff.display,fontSize:100,color:`${C.gold}15`,lineHeight:0.5}}>"</div>
+            <blockquote style={{fontFamily:ff.display,fontSize:"clamp(26px, 3.5vw, 42px)",fontWeight:400,fontStyle:"italic",color:C.dark,lineHeight:1.45,margin:0,letterSpacing:"-0.02em"}}>
+              Superleckere Backwaren — so muss<br/>frisches Brot schmecken.
+            </blockquote>
+            <div style={{width:40,height:1,background:C.gold,margin:"28px auto"}}/>
+            <div style={{fontFamily:ff.body,fontSize:10,fontWeight:500,color:C.muted,letterSpacing:3,textTransform:"uppercase"}}>Google-Rezension · 5 Sterne</div>
+          </R>
+        </div>
+      </section>
+
+      {/* ── BREAD PHOTO INTERLUDE ── */}
+      <PhotoSection src={IMG.bread} alt="Natursauerteig-Brot Nahaufnahme" height={420} position="center 40%"
+        overlay="linear-gradient(90deg, #1C1108DD 0%, #1C110880 50%, transparent 100%)">
+        <div style={{maxWidth:1200,margin:"0 auto",padding:"0 40px 56px",width:"100%",boxSizing:"border-box"}}>
+          <R>
+            <h2 style={{fontFamily:ff.display,fontSize:44,fontWeight:600,color:C.white,lineHeight:1.1,margin:"0 0 12px",maxWidth:400}}>
+              Natursauerteig.<br/><em style={{fontWeight:400,color:C.gold}}>Keine Kompromisse.</em>
+            </h2>
+            <p style={{fontFamily:ff.body,fontSize:14,fontWeight:300,color:`${C.warm}90`,maxWidth:360,margin:0,lineHeight:1.8}}>
+              Unsere Brote brauchen nur Mehl, Wasser und Salz. Den Rest macht die Zeit.
+            </p>
+          </R>
+        </div>
+      </PhotoSection>
+
+      {/* ── SORTIMENT GRID ── */}
+      <section style={{background:C.bg,position:"relative",padding:"100px 40px"}}>
+        <div style={grain}/>
+        <div style={{maxWidth:1200,margin:"0 auto"}}>
+          <R>
+            <div style={{textAlign:"center",marginBottom:64}}>
+              <div style={{fontFamily:ff.body,fontSize:11,fontWeight:500,letterSpacing:5,textTransform:"uppercase",color:C.gold,marginBottom:16}}>Aus dem Ofen</div>
+              <h2 style={{fontFamily:ff.display,fontSize:52,fontWeight:600,color:C.dark,lineHeight:1.05,letterSpacing:"-0.03em",margin:0}}>
+                Was wir <em style={{fontWeight:400}}>backen.</em>
+              </h2>
+            </div>
+          </R>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4, 1fr)",gap:2}}>
+            {[
+              {t:"Sauerteig-Brote",s:"Roggen · Misch · Vollkorn",img:IMG.bread},
+              {t:"Brezeln & Laugen",s:"Knusprig · Goldbraun",img:IMG.brezeln},
+              {t:"Brötchen",s:"Weizen · Körner · Mehrkorn",img:IMG.dough},
+              {t:"Feingebäck",s:"Teilchen · Kuchen · Saisonal",img:IMG.bakery},
+            ].map((p,i)=>(
+              <R key={i} delay={i*0.08}>
+                <div style={{position:"relative",height:360,overflow:"hidden",cursor:"default",background:C.dark}}
+                  onMouseEnter={e=>{e.currentTarget.querySelector('.overlay').style.opacity="0.5";e.currentTarget.querySelector('.content').style.transform="translateY(0)"}}
+                  onMouseLeave={e=>{e.currentTarget.querySelector('.overlay').style.opacity="0.7";e.currentTarget.querySelector('.content').style.transform="translateY(8px)"}}
+                >
+                  <img src={p.img} alt={p.t} loading="lazy" style={{width:"100%",height:"100%",objectFit:"cover",display:"block",transition:"transform 0.6s ease"}}
+                    onMouseEnter={e=>{e.currentTarget.style.transform="scale(1.05)"}}
+                    onMouseLeave={e=>{e.currentTarget.style.transform="scale(1)"}}
+                  />
+                  <div className="overlay" style={{position:"absolute",inset:0,background:`linear-gradient(0deg, ${C.dark} 0%, ${C.dark}80 50%, transparent 100%)`,opacity:0.7,transition:"opacity 0.4s"}}/>
+                  <div className="content" style={{position:"absolute",bottom:0,left:0,right:0,padding:"28px 24px",transform:"translateY(8px)",transition:"transform 0.4s ease"}}>
+                    <h3 style={{fontFamily:ff.display,fontSize:24,fontWeight:600,color:C.white,margin:"0 0 6px"}}>{p.t}</h3>
+                    <div style={{fontFamily:ff.body,fontSize:11,fontWeight:300,color:C.warm,letterSpacing:1}}>{p.s}</div>
+                  </div>
+                </div>
+              </R>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── BAKERY DISPLAY PHOTO ── */}
+      <PhotoSection src={IMG.bakery} alt="Bäckerei Auslage" height={380} position="center 60%"
+        overlay={`linear-gradient(0deg, ${C.dark}EE 0%, ${C.dark}70 50%, ${C.dark}30 100%)`}>
+        <div style={{maxWidth:1200,margin:"0 auto",padding:"0 40px 48px",width:"100%",boxSizing:"border-box",display:"flex",justifyContent:"space-between",alignItems:"flex-end",flexWrap:"wrap",gap:32}}>
+          <R>
+            <div>
+              <h3 style={{fontFamily:ff.display,fontSize:36,fontWeight:600,color:C.white,margin:"0 0 8px"}}>
+                Jeden Morgen <em style={{fontWeight:400,color:C.gold}}>ab 05:45.</em>
+              </h3>
+              <p style={{fontFamily:ff.body,fontSize:13,color:`${C.warm}80`,margin:0}}>Dienstag bis Samstag. Haller Str. 47, Rosenberg.</p>
+            </div>
+          </R>
+          <R delay={0.1}>
+            <a href="tel:07967478" style={{display:"inline-flex",alignItems:"center",gap:10,background:C.gold,color:C.dark,padding:"16px 32px",borderRadius:0,fontFamily:ff.body,fontSize:12,fontWeight:600,letterSpacing:1.5,textTransform:"uppercase",textDecoration:"none",transition:"all 0.25s",minHeight:52}}
+              onMouseEnter={e=>{e.currentTarget.style.background=C.goldBright}}
+              onMouseLeave={e=>{e.currentTarget.style.background=C.gold}}
+            >{ic.phone} 07967 478</a>
+          </R>
+        </div>
+      </PhotoSection>
+
+      {/* ── TRUST BAR ── */}
+      <section style={{background:C.white,borderBottom:`1px solid ${C.cream}`}}>
+        <div style={{maxWidth:1200,margin:"0 auto",padding:"48px 40px",display:"flex",alignItems:"center",justifyContent:"center",gap:48,flexWrap:"wrap"}}>
+          {[
+            {icon:ic.award,t:"Innungsbäcker",d:"Geprüftes Handwerk"},
+            {icon:ic.star,t:"4,7 / 5 Sternen",d:"93 Bewertungen"},
+            {icon:ic.check,t:"Brotinstitut",d:"Zertifizierte Qualität"},
+            {icon:ic.wifi,t:"WLAN im Laden",d:"Kostenloses Internet"},
+          ].map((b,i)=>(
+            <div key={i} style={{display:"flex",alignItems:"center",gap:14}}>
+              <div style={{color:C.gold}}>{b.icon}</div>
+              <div>
+                <div style={{fontFamily:ff.body,fontSize:13,fontWeight:600,color:C.dark}}>{b.t}</div>
+                <div style={{fontFamily:ff.body,fontSize:11,color:C.muted}}>{b.d}</div>
+              </div>
+              {i<3&&<div style={{width:1,height:32,background:C.cream,marginLeft:34}}/>}
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ═══ HANDWERK ═══ */
+function Handwerk() {
+  const [open,setOpen] = useState(0);
+  const items = [
+    {t:"Natursauerteig-Brote",sub:"Unser Herzstück",d:"Jedes Brot beginnt mit unserem Sauerteig — kein Industriepulver, kein Schnellverfahren. Die lange Teigführung entwickelt komplexe Aromen, knusprige Kruste und natürliche Frische."},
+    {t:"Brezeln & Laugengebäck",sub:"Täglich frisch geformt",d:"Von Hand geformt, perfekt gelaugt und goldbraun gebacken. Die richtige Balance zwischen knuspriger Kruste und weichem Inneren — wie man sie in Schwaben liebt."},
+    {t:"Brötchen & Kleingebäck",sub:"Ab 05:45 warm",d:"Klassisch, kernig oder Mehrkorn — ab dem frühen Morgen dampfend frisch. Wer zeitig kommt, erlebt den Unterschied."},
+    {t:"Feingebäck & Kuchen",sub:"Für besondere Momente",d:"Handgemachte Plunder, saisonale Kuchen und süße Teilchen. Bei uns wird noch richtig gebacken, nicht aufgetaut."},
+    {t:"Belegte Brötchen",sub:"Für unterwegs",d:"Frisch belegt, mit Zutaten die man schmeckt. Für die Mittagspause oder den schnellen Hunger. Zum Mitnehmen."},
+  ];
+  return (
+    <div>
+      <PhotoSection src={IMG.dough} alt="Teig wird vorbereitet" height={400} position="center"
+        overlay={`linear-gradient(0deg, ${C.dark}F0 0%, ${C.dark}80 60%, ${C.dark}40 100%)`}>
+        <div style={{maxWidth:1200,margin:"0 auto",padding:"0 40px 56px",width:"100%",boxSizing:"border-box"}}>
+          <R>
+            <div style={{fontFamily:ff.body,fontSize:11,fontWeight:400,letterSpacing:5,textTransform:"uppercase",color:C.warm,marginBottom:16,display:"flex",alignItems:"center",gap:14}}>
+              <span style={{width:28,height:1,background:C.gold,display:"inline-block"}}/>Sortiment
+            </div>
+            <h2 style={{fontFamily:ff.display,fontSize:56,fontWeight:600,color:C.white,lineHeight:1.05,margin:0}}>
+              Was jeden Tag <em style={{fontWeight:400,color:C.gold}}>entsteht.</em>
+            </h2>
+          </R>
+        </div>
+      </PhotoSection>
+      <section style={{background:C.bg,position:"relative"}}>
+        <div style={grain}/>
+        <div style={{maxWidth:1200,margin:"0 auto",padding:"80px 40px 120px"}}>
+          {items.map((s,i)=>(
+            <R key={i} delay={i*0.04}>
+              <div onClick={()=>setOpen(open===i?-1:i)} style={{borderTop:`1px solid ${C.dark}08`,padding:"36px 0",cursor:"pointer"}}>
+                <div style={{display:"flex",alignItems:"center",gap:32}}>
+                  <span style={{fontFamily:ff.display,fontSize:18,color:`${C.gold}${open===i?'60':'25'}`,fontWeight:300,width:40,transition:"color 0.3s"}}>{String(i+1).padStart(2,"0")}</span>
+                  <h3 style={{flex:1,fontFamily:ff.display,fontSize:open===i?38:28,fontWeight:600,color:C.dark,transition:"all 0.4s cubic-bezier(0.16,1,0.3,1)",margin:0}}>{s.t}</h3>
+                  <div style={{fontFamily:ff.body,fontSize:10,fontWeight:500,color:open===i?C.gold:C.mutedLight,letterSpacing:2,textTransform:"uppercase",transition:"color 0.3s"}}>{s.sub}</div>
+                </div>
+                <div style={{overflow:"hidden",maxHeight:open===i?200:0,opacity:open===i?1:0,transition:"all 0.5s cubic-bezier(0.16,1,0.3,1)",marginLeft:72}}>
+                  <p style={{fontFamily:ff.body,fontSize:15,fontWeight:300,color:C.muted,lineHeight:1.9,maxWidth:600,margin:"20px 0 0"}}>{s.d}</p>
+                </div>
+              </div>
+            </R>
+          ))}
+          <div style={{borderTop:`1px solid ${C.dark}08`}}/>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ═══ ÜBER UNS ═══ */
+function Ueber() {
+  return (
+    <div>
+      <PhotoSection src={IMG.wheat} alt="Weizenfeld" height={400} position="center 70%"
+        overlay={`linear-gradient(0deg, ${C.dark}F0 0%, ${C.dark}80 60%, ${C.dark}40 100%)`}>
+        <div style={{maxWidth:1200,margin:"0 auto",padding:"0 40px 56px",width:"100%",boxSizing:"border-box"}}>
+          <R>
+            <div style={{fontFamily:ff.body,fontSize:11,fontWeight:400,letterSpacing:5,textTransform:"uppercase",color:C.warm,marginBottom:16,display:"flex",alignItems:"center",gap:14}}>
+              <span style={{width:28,height:1,background:C.gold,display:"inline-block"}}/>Über Uns
+            </div>
+            <h2 style={{fontFamily:ff.display,fontSize:56,fontWeight:600,color:C.white,lineHeight:1.05,margin:0}}>
+              Ein Bäcker. <em style={{fontWeight:400,color:C.gold}}>Eine Überzeugung.</em>
+            </h2>
+          </R>
+        </div>
+      </PhotoSection>
+      <section style={{background:C.bg,position:"relative"}}>
+        <div style={grain}/>
+        <div style={{maxWidth:1200,margin:"0 auto",padding:"80px 40px 120px"}}>
+          <div style={{display:"grid",gridTemplateColumns:"1.2fr 1fr",gap:80,alignItems:"start"}}>
+            <R>
+              <div>
+                <p style={{fontFamily:ff.display,fontSize:24,fontWeight:400,fontStyle:"italic",color:C.crust,lineHeight:1.6,margin:"0 0 32px"}}>
+                  „Gutes Brot braucht nur drei Dinge: gute Zutaten, handwerkliches Können und vor allem — Zeit."
+                </p>
+                <p style={{fontFamily:ff.body,fontSize:15,fontWeight:300,color:C.muted,lineHeight:1.9,margin:"0 0 20px"}}>
+                  Jürgen Schenk führt seine Bäckerei in der Haller Straße 47 in Rosenberg mit einer klaren Philosophie: Was in den Teig kommt, muss man aussprechen können. Mehl, Wasser, Salz und Sauerteig. Keine Backmischungen, keine Enzyme, keine Tricks.
+                </p>
+                <p style={{fontFamily:ff.body,fontSize:15,fontWeight:300,color:C.muted,lineHeight:1.9,margin:0}}>
+                  Das Ergebnis sind Brote mit Charakter — mit einer Kruste die beim Aufschneiden knackt und einem Geschmack, den man nicht vergisst.
+                </p>
+              </div>
+            </R>
+            <R delay={0.2}>
+              <div style={{background:C.white,padding:"48px 40px",borderLeft:`3px solid ${C.gold}`}}>
+                <div style={{fontFamily:ff.body,fontSize:10,fontWeight:600,color:C.gold,letterSpacing:3,textTransform:"uppercase",marginBottom:28}}>Jürgen Schenk · Inhaber</div>
+                {[{l:"Beruf",v:"Bäckermeister"},{l:"Spezialität",v:"Natursauerteig-Brote"},{l:"Auszeichnung",v:"Innungsbäcker"},{l:"Zertifizierung",v:"Deutsches Brotinstitut e.V."},{l:"WLAN",v:"Kostenlos im Laden"}].map((f,i)=>(
+                  <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"14px 0",borderBottom:`1px solid ${C.dark}06`}}>
+                    <span style={{fontFamily:ff.body,fontSize:12,fontWeight:500,color:C.muted,textTransform:"uppercase",letterSpacing:1}}>{f.l}</span>
+                    <span style={{fontFamily:ff.body,fontSize:13,fontWeight:500,color:C.dark}}>{f.v}</span>
+                  </div>
+                ))}
+              </div>
+            </R>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ═══ KONTAKT ═══ */
+function Kontakt() {
+  return (
+    <div>
+      <PhotoSection src={IMG.bakery} alt="Bäckerei Laden" height={400} position="center"
+        overlay={`linear-gradient(0deg, ${C.dark}F0 0%, ${C.dark}80 60%, ${C.dark}40 100%)`}>
+        <div style={{maxWidth:1200,margin:"0 auto",padding:"0 40px 56px",width:"100%",boxSizing:"border-box"}}>
+          <R>
+            <div style={{fontFamily:ff.body,fontSize:11,fontWeight:400,letterSpacing:5,textTransform:"uppercase",color:C.warm,marginBottom:16,display:"flex",alignItems:"center",gap:14}}>
+              <span style={{width:28,height:1,background:C.gold,display:"inline-block"}}/>Kontakt
+            </div>
+            <h2 style={{fontFamily:ff.display,fontSize:56,fontWeight:600,color:C.white,lineHeight:1.05,margin:0}}>
+              Wir freuen uns <em style={{fontWeight:400,color:C.gold}}>auf Sie.</em>
+            </h2>
+          </R>
+        </div>
+      </PhotoSection>
+      <section style={{background:C.bg,position:"relative"}}>
+        <div style={grain}/>
+        <div style={{maxWidth:1200,margin:"0 auto",padding:"80px 40px 120px"}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:0}}>
+            <R>
+              <div style={{background:C.white,padding:"56px 48px"}}>
+                {[
+                  {icon:ic.pin,l:"Adresse",v:"Haller Str. 47\n73494 Rosenberg"},
+                  {icon:ic.phone,l:"Telefon",v:"07967 478"},
+                  {icon:ic.mail,l:"E-Mail",v:"baeckerei.schenk@kabelbw.de"},
+                ].map((c,i)=>(
+                  <div key={i} style={{display:"flex",gap:20,marginBottom:36}}>
+                    <div style={{color:C.gold,marginTop:2}}>{c.icon}</div>
+                    <div>
+                      <div style={{fontFamily:ff.body,fontSize:10,fontWeight:600,color:C.muted,letterSpacing:2,textTransform:"uppercase",marginBottom:6}}>{c.l}</div>
+                      <div style={{fontFamily:ff.body,fontSize:16,color:C.dark,fontWeight:500,whiteSpace:"pre-line",lineHeight:1.5}}>{c.v}</div>
+                    </div>
+                  </div>
+                ))}
+                <div style={{borderTop:`1px solid ${C.dark}08`,paddingTop:32,marginTop:12}}>
+                  <a href="tel:07967478" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:12,width:"100%",boxSizing:"border-box",background:C.dark,color:C.white,padding:"18px",fontFamily:ff.body,fontSize:12,fontWeight:600,letterSpacing:1.5,textTransform:"uppercase",textDecoration:"none",transition:"all 0.25s",minHeight:56}}
+                    onMouseEnter={e=>{e.currentTarget.style.background=C.crust}}
+                    onMouseLeave={e=>{e.currentTarget.style.background=C.dark}}
+                  >{ic.phone} Jetzt anrufen</a>
+                </div>
+              </div>
+            </R>
+            <R delay={0.12}>
+              <div style={{background:C.dark,padding:"56px 48px",position:"relative",overflow:"hidden"}}>
+                <div style={grain}/>
+                <div style={{position:"relative"}}>
+                  <h3 style={{fontFamily:ff.display,fontSize:30,fontWeight:600,color:C.warm,margin:"0 0 36px"}}>Öffnungszeiten</h3>
+                  {[{d:"Montag",t:"Ruhetag",off:true},{d:"Dienstag",t:"05:45 – 18:00"},{d:"Mittwoch",t:"05:45 – 18:00"},{d:"Donnerstag",t:"05:45 – 18:00"},{d:"Freitag",t:"05:45 – 18:00"},{d:"Samstag",t:"05:45 – 12:00"},{d:"Sonntag",t:"Ruhetag",off:true}].map((d,i)=>(
+                    <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"15px 0",borderBottom:i<6?`1px solid ${C.warm}08`:"none"}}>
+                      <span style={{fontFamily:ff.body,fontSize:14,fontWeight:d.off?300:500,color:d.off?`${C.warm}40`:C.warm}}>{d.d}</span>
+                      <span style={{fontFamily:ff.body,fontSize:14,fontWeight:d.off?300:600,color:d.off?`${C.warm}30`:C.gold,fontStyle:d.off?"italic":"normal"}}>{d.t}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </R>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ═══ FOOTER ═══ */
+function Footer({go}) {
+  return (
+    <footer style={{background:C.dark}}>
+      <div style={{maxWidth:1200,margin:"0 auto",padding:"64px 40px 32px",display:"grid",gridTemplateColumns:"2fr 1fr 1fr",gap:60}}>
+        <div>
+          <span style={{fontFamily:ff.display,fontSize:28,fontWeight:600,color:C.warm}}>Schenk</span>
+          <p style={{fontFamily:ff.body,fontSize:13,fontWeight:300,color:`${C.warm}50`,lineHeight:1.8,maxWidth:300,marginTop:16}}>Handwerksbäckerei in Rosenberg. Natursauerteig, echte Zutaten, jeden Morgen frisch.</p>
+        </div>
+        <div>
+          <div style={{fontFamily:ff.body,fontSize:10,fontWeight:600,color:`${C.warm}50`,letterSpacing:2,textTransform:"uppercase",marginBottom:20}}>Seiten</div>
+          {pages.map(p=><div key={p.id} onClick={()=>go(p.id)} style={{fontFamily:ff.body,fontSize:13,fontWeight:300,color:`${C.warm}40`,marginBottom:12,cursor:"pointer",transition:"color 0.2s"}} onMouseEnter={e=>{e.currentTarget.style.color=C.warm}} onMouseLeave={e=>{e.currentTarget.style.color=`${C.warm}40`}}>{p.l}</div>)}
+        </div>
+        <div>
+          <div style={{fontFamily:ff.body,fontSize:10,fontWeight:600,color:`${C.warm}50`,letterSpacing:2,textTransform:"uppercase",marginBottom:20}}>Kontakt</div>
+          <div style={{fontFamily:ff.body,fontSize:13,fontWeight:300,color:`${C.warm}40`,lineHeight:2.2}}>Haller Str. 47<br/>73494 Rosenberg<br/>07967 478</div>
+        </div>
+      </div>
+      <div style={{maxWidth:1200,margin:"0 auto",padding:"20px 40px",borderTop:`1px solid ${C.warm}08`,display:"flex",justifyContent:"space-between",fontFamily:ff.body,fontSize:11,fontWeight:300,color:`${C.warm}25`}}>
+        <span>© 2026 Bäckerei Schenk</span>
+        <span>Konzept — LaneCore AI</span>
+      </div>
+    </footer>
+  );
+}
+
+/* ═══ APP ═══ */
+const App = function App() {
+  const [page,setPage] = useState("home");
+  const go = p => { setPage(p); window.scrollTo?.({top:0,behavior:"smooth"}); };
+  return (
+    <div style={{background:C.bg,minHeight:"100vh"}}>
+      <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Outfit:wght@200;300;400;500;600;700&display=swap" rel="stylesheet"/>
+      <Nav active={page} go={go}/>
+      <main>{page==="home"&&<Home go={go}/>}{page==="handwerk"&&<Handwerk/>}{page==="ueber"&&<Ueber/>}{page==="kontakt"&&<Kontakt/>}</main>
+      <Footer go={go}/>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
